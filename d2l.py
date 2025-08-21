@@ -47,6 +47,23 @@ from torch import nn
 from torch.nn import functional as F
 from torchvision import transforms
 
+### my additions:
+
+import inspect
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
+from IPython.display import HTML
+
+def show_source(func):
+    code = inspect.getsource(func)
+    formatter = HtmlFormatter(style="friendly", nowrap=False)
+    highlighted_code = highlight(code, PythonLexer(), formatter)
+    return HTML(f"<style>{formatter.get_style_defs('.highlight')}</style>{highlighted_code}")
+
+### end my additions
+
+
 def use_svg_display():
     """Use the svg format to display a plot in Jupyter.
 
@@ -99,9 +116,7 @@ def plot(X, Y=None, xlabel=None, ylabel=None, legend=[], xlim=None,
     set_axes(axes, xlabel, ylabel, xlim, ylim, xscale, yscale, legend)
 
 def add_to_class(Class):
-    """Register functions as methods in created class.
-
-    Defined in :numref:`sec_oo-design`"""
+    """Register functions as methods in created class."""
     def wrapper(obj):
         setattr(Class, obj.__name__, obj)
     return wrapper
@@ -109,13 +124,10 @@ def add_to_class(Class):
 class HyperParameters:
     """The base class of hyperparameters."""
     def save_hyperparameters(self, ignore=[]):
-        """Defined in :numref:`sec_oo-design`"""
         raise NotImplemented
 
     def save_hyperparameters(self, ignore=[]):
-        """Save function arguments into class attributes.
-    
-        Defined in :numref:`sec_utils`"""
+        """Save function arguments into class attributes."""    
         frame = inspect.currentframe().f_back
         _, _, _, local_vars = inspect.getargvalues(frame)
         self.hparams = {k:v for k, v in local_vars.items()
@@ -124,9 +136,7 @@ class HyperParameters:
             setattr(self, k, v)
 
 class ProgressBoard(d2l.HyperParameters):
-    """The board that plots data points in animation.
-
-    Defined in :numref:`sec_oo-design`"""
+    """The board that plots data points in animation."""
     def __init__(self, xlabel=None, ylabel=None, xlim=None,
                  ylim=None, xscale='linear', yscale='linear',
                  ls=['-', '--', '-.', ':'], colors=['C0', 'C1', 'C2', 'C3'],
@@ -232,9 +242,7 @@ class Module(d2l.nn_Module, d2l.HyperParameters):
             self.net.apply(init)
 
 class DataModule(d2l.HyperParameters):
-    """The base class of data.
-
-    Defined in :numref:`subsec_oo-design-models`"""
+    """The base class of data."""
     def __init__(self, root='../data', num_workers=4):
         self.save_hyperparameters()
 
@@ -248,16 +256,13 @@ class DataModule(d2l.HyperParameters):
         return self.get_dataloader(train=False)
 
     def get_tensorloader(self, tensors, train, indices=slice(0, None)):
-        """Defined in :numref:`sec_synthetic-regression-data`"""
         tensors = tuple(a[indices] for a in tensors)
         dataset = torch.utils.data.TensorDataset(*tensors)
         return torch.utils.data.DataLoader(dataset, self.batch_size,
                                            shuffle=train)
 
 class Trainer(d2l.HyperParameters):
-    """The base class for training models with data.
-
-    Defined in :numref:`subsec_oo-design-models`"""
+    """The base class for training models with data."""
     def __init__(self, max_epochs, num_gpus=0, gradient_clip_val=0):
         self.save_hyperparameters()
         assert num_gpus == 0, 'No GPU support yet'
@@ -284,15 +289,10 @@ class Trainer(d2l.HyperParameters):
         for self.epoch in range(self.max_epochs):
             self.fit_epoch()
 
-    def fit_epoch(self):
-        raise NotImplementedError
-
     def prepare_batch(self, batch):
-        """Defined in :numref:`sec_linear_scratch`"""
         return batch
 
     def fit_epoch(self):
-        """Defined in :numref:`sec_linear_scratch`"""
         self.model.train()
         for batch in self.train_dataloader:
             loss = self.model.training_step(self.prepare_batch(batch))
@@ -312,20 +312,15 @@ class Trainer(d2l.HyperParameters):
             self.val_batch_idx += 1
 
     def __init__(self, max_epochs, num_gpus=0, gradient_clip_val=0):
-        """Defined in :numref:`sec_use_gpu`"""
         self.save_hyperparameters()
         self.gpus = [d2l.gpu(i) for i in range(min(num_gpus, d2l.num_gpus()))]
     
-
     def prepare_batch(self, batch):
-        """Defined in :numref:`sec_use_gpu`"""
         if self.gpus:
             batch = [d2l.to(a, self.gpus[0]) for a in batch]
         return batch
-    
 
     def prepare_model(self, model):
-        """Defined in :numref:`sec_use_gpu`"""
         model.trainer = self
         model.board.xlim = [0, self.max_epochs]
         if self.gpus:
@@ -333,7 +328,6 @@ class Trainer(d2l.HyperParameters):
         self.model = model
 
     def clip_gradients(self, grad_clip_val, model):
-        """Defined in :numref:`sec_rnn-scratch`"""
         params = [p for p in model.parameters() if p.requires_grad]
         norm = torch.sqrt(sum(torch.sum((p.grad ** 2)) for p in params))
         if norm > grad_clip_val:
@@ -341,9 +335,7 @@ class Trainer(d2l.HyperParameters):
                 param.grad[:] *= grad_clip_val / norm
 
 class SyntheticRegressionData(d2l.DataModule):
-    """Synthetic data for linear regression.
-
-    Defined in :numref:`sec_synthetic-regression-data`"""
+    """Synthetic data for linear regression."""
     def __init__(self, w, b, noise=0.01, num_train=1000, num_val=1000,
                  batch_size=32):
         super().__init__()
@@ -359,9 +351,7 @@ class SyntheticRegressionData(d2l.DataModule):
         return self.get_tensorloader((self.X, self.y), train, i)
 
 class LinearRegressionScratch(d2l.Module):
-    """The linear regression model implemented from scratch.
-
-    Defined in :numref:`sec_linear_scratch`"""
+    """The linear regression model implemented from scratch."""
     def __init__(self, num_inputs, lr, sigma=0.01):
         super().__init__()
         self.save_hyperparameters()
@@ -369,16 +359,13 @@ class LinearRegressionScratch(d2l.Module):
         self.b = d2l.zeros(1, requires_grad=True)
 
     def forward(self, X):
-        """Defined in :numref:`sec_linear_scratch`"""
         return d2l.matmul(X, self.w) + self.b
 
     def loss(self, y_hat, y):
-        """Defined in :numref:`sec_linear_scratch`"""
         l = (y_hat - y) ** 2 / 2
         return d2l.reduce_mean(l)
 
     def configure_optimizers(self):
-        """Defined in :numref:`sec_linear_scratch`"""
         return SGD([self.w, self.b], self.lr)
 
 class SGD(d2l.HyperParameters):

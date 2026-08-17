@@ -4,13 +4,13 @@
 [![Code: MIT](https://img.shields.io/badge/code-MIT-yellow.svg)](https://opensource.org/license/mit)
 
 Jupyter notebooks for CS 545 at Colorado State University, taught by
-[Asa Ben-Hur](https://www.cs.colostate.edu/~asa/). The notebooks run on a
-laptop CPU with faster performance on a GPU-equipped machine like a
-modern Mac.
-
+[Asa Ben-Hur](https://www.cs.colostate.edu/~asa/). 
 
 ## Modules
 
+This course introduces modern deep learning techniques, and takes a
+"transformers first" approach instead of teaching the material
+according to its historic development.
 
 | Folder       | Topics                                                                 |
 |--------------|------------------------------------------------------------------------|
@@ -32,10 +32,10 @@ this repository.  We suggest using conda to fully automate the install
 process.  That way, conda is the only package you will need to install by hand.
 
 
-**1. Install conda.** If you do not already have it, install
+**1. Install conda.** If you do not already have it, we suggest installing
 [Miniforge](https://github.com/conda-forge/miniforge), choosing the installer
-that matches your operating system and processor — Apple Silicon and Intel
-Macs take different ones. Miniforge is a minimal conda that draws packages
+that matches your operating system and processor (Apple Silicon and Intel
+Macs take different ones). Miniforge is a minimal conda that draws packages
 from `conda-forge` by default, which is the channel this course uses. An
 existing Anaconda or Miniconda installation works too.
 
@@ -46,7 +46,8 @@ conda env create -f environment.yml
 ```
 
 This installs Python, PyTorch, Jupyter and everything else in one step. Expect
-it to take a few minutes and a couple of gigabytes of disk.
+it to take a few minutes and a couple of gigabytes of disk (This step
+assumes you have downloaded the repository.)
 
 **3. Activate it.**
 
@@ -54,19 +55,19 @@ it to take a few minutes and a couple of gigabytes of disk.
 conda activate 545
 ```
 
-Every new terminal window starts *outside* the environment, so this is the
-step that gets forgotten. If a notebook reports a missing package, check this
+Note that every time you open a new terminal window, you will need to
+activate this environment.  If a notebook reports a missing package, check this
 first.
 
 **4. Start Jupyter** from the directory of the module you want to work
 in e.g.,
 
 ```bash
-cd attention
+cd 04_attention
 jupyter lab
 ```
 
-or open a single notebook with `jupyter lab module04_01_sentiment_transformer.ipynb`.
+or open a given notebook with `jupyter lab module04_01_sentiment_transformer.ipynb`.
 Run notebooks from inside their own module directory: they look for datasets
 at `../data`, and will download them to the wrong place otherwise.
 
@@ -117,6 +118,3 @@ under the [MIT license](https://opensource.org/license/mit); see
 [LICENSE-CODE](LICENSE-CODE). Portions derive from d2l's sample code, which
 its authors make available under a
 [modified MIT license](https://github.com/d2l-ai/d2l-en/blob/master/LICENSE-SAMPLECODE).
-
-Each notebook repeats this attribution in its first cell, so that a notebook
-downloaded on its own still carries it.

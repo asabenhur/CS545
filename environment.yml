@@ -1,0 +1,53 @@
+# Conda environment for all modules of CS 545.
+#
+#   Create it:    conda env create -f environment.yml
+#   Activate it:  conda activate 545
+#   Update it:    conda env update -f environment.yml --prune
+#   Remove it:    conda env remove -n 545
+#
+# This single file replaces the per-module environment files that used to live
+# in 04_attention/, 06_cnn/ and 05_llm/.  It is their union, plus what the 01_linear/, 02_mlp/
+# and 03_recurrent/ modules import; every package below is imported by at least
+# one notebook, with the one exception noted against `pandas`.
+#
+# Everything comes from a single channel (conda-forge) on purpose: mixing pip
+# into a conda environment is the usual way to get a broken solver, so install
+# with conda first and reach for `pip` only for things conda-forge lacks.
+
+name: 545
+
+channels:
+  - conda-forge
+  - nodefaults        # avoid the Anaconda "defaults" channel (licensing/ToS)
+
+dependencies:
+  - python>=3.10      # a lower bound, not a pin: updating an existing
+                      # environment should not force an interpreter upgrade
+
+  # --- core numerical / deep-learning stack (used by every module) ---
+  - pytorch           # CPU build; also enables Apple-Silicon (MPS) on macOS.
+                      # NVIDIA-GPU users: install a CUDA build instead, per the
+                      # selector at https://pytorch.org (do it in this env).
+  - torchvision       # image datasets and transforms: MNIST and Fashion-MNIST
+                      # in 01_linear/, 02_mlp/ and 06_cnn/
+  - numpy
+  - matplotlib
+  - scikit-learn      # toy datasets, TF-IDF and baseline classifiers in
+                      # 01_linear/, 02_mlp/, 03_recurrent/, 04_attention/ and 05_llm/
+  - pandas            # not imported by any notebook as of this writing; kept
+                      # for interactive use, and safe to drop
+
+  # --- Hugging Face (04_attention/ and 05_llm/) ---
+  - transformers      # pretrained BERT (04_07), GPT-2 and small modern LLMs
+  - tokenizers        # training our own BPE tokenizer (05_03); also a
+                      # transformers dependency, pinned here because we use it
+                      # directly
+  - datasets          # streaming TinyStories from the Hub (05_03, 05_05)
+  - peft              # LoRA fine-tuning (05_05)
+  - accelerate        # device placement used by transformers' training paths
+
+  # --- notebook interface (brings ipython + matplotlib-inline for SVG figures) ---
+  - jupyterlab
+
+  # keep pip available inside the env for any one-off extras
+  - pip

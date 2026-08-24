@@ -14,7 +14,7 @@
 # into a conda environment is the usual way to get a broken solver, so install
 # with conda first and reach for `pip` only for things conda-forge lacks.
 
-name: 545
+name: '545'
 
 channels:
   - conda-forge
